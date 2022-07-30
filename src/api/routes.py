@@ -4,8 +4,8 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 import os
 from datetime import datetime, timezone, timedelta
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
-from api.utils import generate_sitemap, APIException
+from api.models import db, User ,TokenBlockedList, Planets, People, Planets, Favorites
+from api.utils import generate_sitemap, APIException 
 from flask_bcrypt import Bcrypt #permite encriptar la clave
 from flask_jwt_extended import JWTManager, create_access_token,create_refresh_token, jwt_required, get_jwt_identity,get_jwt #JWTManager permite usar las funciones de JWT,  create_access_token: permite crear tokens, jwt_required: me permite proteger la ruta, get_jwt_identity: me permite desencriptar la clave y libreria token de refresco
 from flask_sqlalchemy import SQLAlchemy
@@ -33,7 +33,11 @@ def signup():
     email=request.json.get("email")#capturando mi usuario email del requerimiento
     password=request.json.get("password")#capturando la contraseña de mi ususario
     password_encryptada= bcrypt.generate_password_hash(password, rounds=None).decode("utf-8") #password encriptada con funcion de JWT y en UTF-8
-    newUser=User(email=email, password=password_encryptada, is_active= True)#creando mi nuevo usuario con el modelo (clase) que importe
+    first_name=request.json.get("first_name")
+    last_name=request.json.get("last_name")
+    password=request.json.get("password")
+    planets=request.json.get("planets")
+    newUser=User(email=email, password=password_encryptada, first_name=first_name, last_name=last_name, planets=planets ,is_active= True)#creando mi nuevo usuario con el modelo (clase) que importe
     db.session.add(newUser)
     db.session.commit()
     response_body = {
@@ -103,7 +107,8 @@ def create_user():
     first_name=request.json.get("first_name")
     last_name=request.json.get("last_name")
     password=request.json.get("password")
-    newUser=User(email=email, first_name=first_name, last_name=last_name, password=password, is_active= True )
+    planets=request.json.get("planets")
+    newUser=User(email=email, first_name=first_name, last_name=last_name, password=password, planets= planets, is_active= True )
     db.session.add(newUser)
     db.session.commit()
     response_body = {
@@ -144,3 +149,8 @@ def listar_planetas():
     all_planets = list(map(lambda x: x.to_dict(), planetas))
 
     return jsonify(all_planets), 200
+
+# this only runs if `$ python src/main.py` is executed
+if __name__ == '__main__':
+    PORT = int(os.environ.get('PORT', 3000))
+    app.run(host='0.0.0.0', port=PORT, debug=False)

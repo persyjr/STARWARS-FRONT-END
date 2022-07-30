@@ -16,7 +16,7 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.email
 
-    def to_dict(self):                                          #defino el dictionary de mi clase para que le asigne las propiedades a mi objeto
+    def serialize(self):                                          #defino el dictionary de mi clase para que le asigne las propiedades a mi objeto
         return {
             "id": self.id,
             "email": self.email,
@@ -38,6 +38,7 @@ class User(db.Model):
         return f'<User {self.email}>'
 
     def serialize(self):
+        to_dict(self):
         return {
             "id": self.id,
             "email": self.email,
@@ -117,3 +118,4 @@ class Favorites(db.Model):
             "people_id": self. people_id
             
         }
+    
