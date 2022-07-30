@@ -78,3 +78,69 @@ def destroyToken():
     db.session.add(TokenBlockedList(token=jti, created_at=now, email=get_jwt_identity()))
     db.session.commit()
     return jsonify(msg="Access token revoked")
+
+@app.route('/user', methods=['GET'])
+def handle_hello():
+
+    response_body = {
+        "msg": "Hello, this is your GET /user response "
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/people', methods=['GET'])
+def listar_people():
+    
+    users=User.query.all()
+    all_users = list(map(lambda x: x.to_dict(), users))
+
+    return jsonify(all_users), 200
+
+@app.route('/user', methods=['POST'])
+def create_user():
+    
+    email=request.json.get("email")
+    first_name=request.json.get("first_name")
+    last_name=request.json.get("last_name")
+    password=request.json.get("password")
+    newUser=User(email=email, first_name=first_name, last_name=last_name, password=password, is_active= True )
+    db.session.add(newUser)
+    db.session.commit()
+    response_body = {
+        "message": "usuario creado exitosamente",
+        "first_name":newUser.first_name,
+        "last_name":newUser.last_name,
+        "id":newUser.id
+    }
+    return jsonify(response_body), 201
+
+@app.route('/planet', methods=['POST'])
+def create_planet():
+
+    name=request.json.get("name")
+    users=request.json.get("users")
+    
+    newPlanet=Planets(name=name, users=users)
+    db.session.add(newPlanet)
+    db.session.commit()
+    response_body = {
+        "message": "planeta creado exitosamente",
+        "name":newPlanet.name,
+        "last_name":newPlanet.users,
+        "picture_url":newPlanet.picture_url,
+        "id":newPlanet.id
+    }
+    return jsonify(response_body), 201
+
+@app.route('/user/<id>', methods=['GET'])
+def historial(id):
+    historial = User.query.get(id)
+    return jsonify(historial.to_dict())
+
+@app.route('/planet', methods=['GET'])
+def listar_planetas():
+    
+    planetas=Planets.query.all()
+    all_planets = list(map(lambda x: x.to_dict(), planetas))
+
+    return jsonify(all_planets), 200
