@@ -83,7 +83,7 @@ class Planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)                                        #este tipo de dato me permite escoger en tre imagen video o galeria
     name = db.Column(db.String(250))
     users=db.Column(db.String(250))
-    picture_url=db.Column(db.String(250), unique=False, nullable=True)
+    
     #estoy relacionando la variable post  de la clase Post en mi clase Media.
     
     def __repr__(self):
@@ -93,7 +93,6 @@ class Planets(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "users": self.picture_url,
             "users": self.users         
         }
 

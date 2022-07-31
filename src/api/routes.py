@@ -10,13 +10,12 @@ from flask_bcrypt import Bcrypt #permite encriptar la clave
 from flask_jwt_extended import JWTManager, create_access_token,create_refresh_token, jwt_required, get_jwt_identity,get_jwt #JWTManager permite usar las funciones de JWT,  create_access_token: permite crear tokens, jwt_required: me permite proteger la ruta, get_jwt_identity: me permite desencriptar la clave y libreria token de refresco
 from flask_sqlalchemy import SQLAlchemy
 
+
 api = Blueprint('api', __name__)
 app = Flask(__name__)#permite acceder a mi api con flask y comunicarme mediante protocolo HTTP.  
 bcrypt=Bcrypt(app)
 db = SQLAlchemy(app)
 jwt = JWTManager(app) 
-
-
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
@@ -28,6 +27,7 @@ def handle_hello():
     return jsonify(response_body), 200
     
 #Registro: End point que reciba usuario y clave y lo registra en la base de datos
+
 @api.route('/signup', methods=['POST']) #ENDPOINT DE REGISTRAR
 def signup():
     email=request.json.get("email")#capturando mi usuario email del requerimiento
@@ -41,11 +41,15 @@ def signup():
     db.session.add(newUser)
     db.session.commit()
     response_body = {
-        "message": "usuario creado exitosamente"
+        "message": "usuario creado exitosamente",
+        "email":email,
+        "first_name": first_name,
+        "last_name":last_name
     }
     return jsonify(response_body), 201
     #login: end-point que recibe un nombre de usuario y clave, lo verifica en l abase de datos y genera un token
     #debe ser redirigido a un menu privado luego de que la autenticación sea éxitosa.
+
 @api.route('/login', methods=['POST']) #ENDPOINT DE INICIO DE SESION
 def login():
     email=request.json.get("email")#capturando mi usuario email del requerimiento
@@ -74,6 +78,7 @@ def verifyToken():
         return "Token invalido", 401 #cuando el token es incorrecto me muestra este mensaje
     return "Token correcto", 200
     #hay un mensaje de token expirado de igual forma
+
 @api.route('/logout', methods=['POST'])
 @jwt_required()
 def destroyToken():
@@ -83,14 +88,31 @@ def destroyToken():
     db.session.commit()
     return jsonify(msg="Access token revoked")
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
+@api.route('/user', methods=['GET'])
+def historial_calificacionestodos():
+    historialTodos = User.query.all()
+    historialTodos = list(map(lambda user: user.serialize(), historialTodos ))
+    return jsonify(historialTodos)
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@api.route('/user', methods=['GET'])
+def historial_usuarios():
+    historialTodos = User.query.all()
+    historialTodos = list(map(lambda user: user.serialize(), historialTodos ))
+    return jsonify(historialTodos)
 
-    return jsonify(response_body), 200
+@api.route('/user/<id>', methods=['GET'])
+def historial_singular_usuario(id):    
+    
+    historialUser = User.query.filter_by(id=id).all()
+    """print(historialTecnico)    
+    return jsonify(historialTecnico)"""
+    
+
+    #historialTecnico = Calificacion.query.all()    
+    historialUser = list(map(lambda user: user.serialize(), historialUser ))
+    #result=list(filter(lambda obj: obj["id_tecnico"]==1, historialTecnico))
+    print(historialUser)
+    return jsonify(historialUser)
 
 @app.route('/people', methods=['GET'])
 def listar_people():
@@ -119,23 +141,23 @@ def create_user():
     }
     return jsonify(response_body), 201
 
-@app.route('/planet', methods=['POST'])
+@api.route('/planet', methods=['POST'])
+@jwt_required()
 def create_planet():
-
-    name=request.json.get("name")
-    users=request.json.get("users")
     
-    newPlanet=Planets(name=name, users=users)
+    name=request.json.get("name")
+    users=get_jwt_identity() 
+    
+    newPlanet=Planets(name=name, users=users )
     db.session.add(newPlanet)
     db.session.commit()
     response_body = {
-        "message": "planeta creado exitosamente",
+        "message": "planeta registrado exitosamente",
         "name":newPlanet.name,
-        "last_name":newPlanet.users,
-        "picture_url":newPlanet.picture_url,
-        "id":newPlanet.id
+        "id":newPlanet.users
     }
     return jsonify(response_body), 201
+
 
 @app.route('/user/<id>', methods=['GET'])
 def historial(id):
