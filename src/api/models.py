@@ -86,9 +86,9 @@ class Favorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship(User)
-    planeta_id = db.Column(db.Integer, db.ForeignKey('planetas.id'))                            #estoy indicando que mi clave post id se relaciona con la clave id de post
+    planeta_id = db.Column(db.Integer, db.ForeignKey('planetas.id'),nullable=True)                            #estoy indicando que mi clave post id se relaciona con la clave id de post
     planetas = db.relationship(Planets)
-    people_id = db.Column(db.Integer, db.ForeignKey('people.id'))                            #estoy indicando que mi clave post id se relaciona con la clave id de post
+    people_id = db.Column(db.Integer, db.ForeignKey('people.id'),nullable=True)                            #estoy indicando que mi clave post id se relaciona con la clave id de post
     people = db.relationship(People)
     
     def serialize(self):

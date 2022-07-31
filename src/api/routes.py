@@ -144,11 +144,38 @@ def user_log():
     historialUser = list(map(lambda user: user.serialize(), historialUser ))
     print(historialUser)
     response_body = {
-        "message": "user in blog ",
+        "message": "user in blog now",
         "user": historialUser
     }
     return jsonify(response_body), 201
 # this only runs if `$ python src/main.py` is executed
+
+@api.route('/favorite/planet/<planet_id>', methods=['POST'])
+@jwt_required()
+def create_favorite_planet(planet_id):
+    
+    #el campo plpaneta_id lo ingreso desde la url
+    #el campo people_id no es requerido, lo puedo quitar
+    planeta_id=planet_id
+    people_id=request.json.get("people_id")
+    
+    #estoy buscando con el email del usuario el id del usuario 
+    email=get_jwt_identity()
+    historialUser = User.query.filter_by(email=email).all()
+    historialUser = list(map(lambda user: user.serialize(), historialUser ))
+    print(historialUser)
+    user_id=historialUser[0]["id"]
+
+    #creando el nuevo registro de planeta en favorito 
+    newFavorite=Favorites(user_id=user_id, people_id=people_id, planeta_id=planeta_id, )
+    db.session.add(newFavorite)
+    db.session.commit()
+    response_body = {
+        "message": "planeta agregado a Favoritos exitosamente",
+        "planeta_id":newFavorite.planeta_id,
+        "id_usuario":newFavorite.user_id
+    }
+    return jsonify(response_body), 201
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
