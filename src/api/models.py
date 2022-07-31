@@ -26,25 +26,7 @@ class User(db.Model):
             "planets": self.planets  
             # do not serialize the password, its a security breach
         }
-"""
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(150), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
-    def __repr__(self):
-        return f'<User {self.email}>'
-
-    def serialize(self):
-        to_dict(self):
-        return {
-            "id": self.id,
-            "email": self.email,
-            # do not serialize the password, its a security breach
-        }
-"""
 class TokenBlockedList(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     token=db.Column(db.String(200), unique=True, nullable=False)
@@ -89,7 +71,7 @@ class Planets(db.Model):
     def __repr__(self):
         return '<Planets %r>' % self.name
 
-    def to_dict(self):
+    def serialize(self):
         return {
             "id": self.id,
             "name": self.name,
@@ -109,7 +91,7 @@ class Favorites(db.Model):
     people_id = db.Column(db.Integer, db.ForeignKey('people.id'))                            #estoy indicando que mi clave post id se relaciona con la clave id de post
     people = db.relationship(People)
     
-    def to_dict(self):
+    def serialize(self):
         return {
             "id": self.id,
             "user_id": self.user_id,

@@ -88,11 +88,6 @@ def destroyToken():
     db.session.commit()
     return jsonify(msg="Access token revoked")
 
-@api.route('/user', methods=['GET'])
-def historial_calificacionestodos():
-    historialTodos = User.query.all()
-    historialTodos = list(map(lambda user: user.serialize(), historialTodos ))
-    return jsonify(historialTodos)
 
 @api.route('/user', methods=['GET'])
 def historial_usuarios():
@@ -103,43 +98,19 @@ def historial_usuarios():
 @api.route('/user/<id>', methods=['GET'])
 def historial_singular_usuario(id):    
     
-    historialUser = User.query.filter_by(id=id).all()
-    """print(historialTecnico)    
-    return jsonify(historialTecnico)"""
-    
-
-    #historialTecnico = Calificacion.query.all()    
+    historialUser = User.query.filter_by(id=id).all() 
     historialUser = list(map(lambda user: user.serialize(), historialUser ))
-    #result=list(filter(lambda obj: obj["id_tecnico"]==1, historialTecnico))
     print(historialUser)
     return jsonify(historialUser)
 
-@app.route('/people', methods=['GET'])
+"""@api.route('/people', methods=['GET'])
 def listar_people():
     
     users=User.query.all()
     all_users = list(map(lambda x: x.to_dict(), users))
 
-    return jsonify(all_users), 200
+    return jsonify(all_users), 200"""
 
-@app.route('/user', methods=['POST'])
-def create_user():
-    
-    email=request.json.get("email")
-    first_name=request.json.get("first_name")
-    last_name=request.json.get("last_name")
-    password=request.json.get("password")
-    planets=request.json.get("planets")
-    newUser=User(email=email, first_name=first_name, last_name=last_name, password=password, planets= planets, is_active= True )
-    db.session.add(newUser)
-    db.session.commit()
-    response_body = {
-        "message": "usuario creado exitosamente",
-        "first_name":newUser.first_name,
-        "last_name":newUser.last_name,
-        "id":newUser.id
-    }
-    return jsonify(response_body), 201
 
 @api.route('/planet', methods=['POST'])
 @jwt_required()
@@ -159,19 +130,24 @@ def create_planet():
     return jsonify(response_body), 201
 
 
-@app.route('/user/<id>', methods=['GET'])
-def historial(id):
-    historial = User.query.get(id)
-    return jsonify(historial.to_dict())
+@api.route('/planet', methods=['GET'])
+def historial_planetas():
+    historialTodos = Planets.query.all()
+    historialTodos = list(map(lambda planetas: planetas.serialize(), historialTodos ))
+    return jsonify(historialTodos)
 
-@app.route('/planet', methods=['GET'])
-def listar_planetas():
-    
-    planetas=Planets.query.all()
-    all_planets = list(map(lambda x: x.to_dict(), planetas))
-
-    return jsonify(all_planets), 200
-
+@api.route('/user/me', methods=['GET'])
+@jwt_required()
+def user_log():
+    email=get_jwt_identity()
+    historialUser = User.query.filter_by(email=email).all()
+    historialUser = list(map(lambda user: user.serialize(), historialUser ))
+    print(historialUser)
+    response_body = {
+        "message": "user in blog ",
+        "user": historialUser
+    }
+    return jsonify(response_body), 201
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
